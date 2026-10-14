@@ -1,0 +1,14 @@
+<!--@subject {{trans "We got your quote request %number" number=$number}} @-->
+<!--@vars {
+"var number":"Request Number",
+"var name":"Name",
+"var items_html|raw":"Lines",
+"var url":"Request Link",
+"var store_name":"Store Name"
+} @-->
+{{template config_path="design/email/header_template"}}
+<p class="greeting">{{trans "Hi %name," name=$name}}</p>
+<p>{{trans "Thanks for asking. We are preparing your quote and will email you when it is ready."}}</p>
+{{var items_html|raw}}
+<p><a href="{{var url}}">{{trans "See your request"}}</a></p>
+{{template config_path="design/email/footer_template"}}

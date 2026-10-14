@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <customer>
+            <captcha>
+                <frontend>
+                    <areas>
+                        <zero_quote_request>
+                            <label>Quote request</label>
+                        </zero_quote_request>
+                    </areas>
+                </frontend>
+            </captcha>
+        </customer>
+        <zero_quote_request>
+            <general>
+                <enabled>1</enabled>
+                <cart_button>1</cart_button>
+                <valid_days>14</valid_days>
+                <notify_identity>general</notify_identity>
+                <identity>sales</identity>
+                <template_new>zero_quote_request_general_template_new</template_new>
+                <template_received>zero_quote_request_general_template_received</template_received>
+                <template_quoted>zero_quote_request_general_template_quoted</template_quoted>
+            </general>
+        </zero_quote_request>
+    </default>
+</config>

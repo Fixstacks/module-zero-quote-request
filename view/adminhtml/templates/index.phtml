@@ -1,0 +1,108 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Sales > Quote Requests: one request (?id=) to answer with a price per line,
+ * or every request.
+ *
+ * @var \Magento\Backend\Block\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+/** @var \Zero\QuoteRequest\ViewModel\Admin $admin */
+$admin = $block->getData('view_model');
+$request = $admin->current();
+$statuses = ['' => __('All'), 'new' => __('New'), 'quoted' => __('Quoted'), 'ordered' => __('Ordered'), 'declined' => __('Declined')];
+?>
+<?php if ($request): ?>
+    <?php $items = $admin->items($request); $open = $request['status'] !== 'ordered'; ?>
+    <p><a href="<?= $escaper->escapeUrl($admin->url('zero_quote/request/index')) ?>">&larr; <?= $escaper->escapeHtml(__('All quote requests')) ?></a></p>
+    <h2 class="admin__legend"><?= $escaper->escapeHtml($admin->number($request)) ?> · <span data-quote-status><?= $escaper->escapeHtml(ucfirst($request['status'])) ?></span></h2>
+    <table class="admin__table-secondary" style="max-width: 720px; margin-bottom: 20px;">
+        <tr><th><?= $escaper->escapeHtml(__('From')) ?></th><td><?= $escaper->escapeHtml($request['name'] . ' (' . $request['email'] . ')') ?><?= $request['customer_id'] ? ' · ' . $escaper->escapeHtml(__('customer #%1', $request['customer_id'])) : '' ?></td></tr>
+        <tr><th><?= $escaper->escapeHtml(__('Phone')) ?></th><td><?= $escaper->escapeHtml((string) $request['phone']) ?></td></tr>
+        <tr><th><?= $escaper->escapeHtml(__('Company')) ?></th><td><?= $escaper->escapeHtml((string) $request['company']) ?></td></tr>
+        <tr><th><?= $escaper->escapeHtml(__('Store View')) ?></th><td><?= $escaper->escapeHtml($admin->storeName($request)) ?> (<?= $escaper->escapeHtml((string) $request['currency']) ?>)</td></tr>
+        <tr><th><?= $escaper->escapeHtml(__('Asked (UTC)')) ?></th><td><?= $escaper->escapeHtml($request['created_at']) ?></td></tr>
+        <tr><th><?= $escaper->escapeHtml(__('Their Comment')) ?></th><td style="white-space: pre-line;"><?= $escaper->escapeHtml((string) $request['comment']) ?></td></tr>
+        <?php if ($request['expires_at']): ?><tr><th><?= $escaper->escapeHtml(__('Valid Until (UTC)')) ?></th><td><?= $escaper->escapeHtml($request['expires_at']) ?></td></tr><?php endif; ?>
+        <?php if ($request['order_increment_id']): ?><tr><th><?= $escaper->escapeHtml(__('Order')) ?></th><td>#<?= $escaper->escapeHtml($request['order_increment_id']) ?></td></tr><?php endif; ?>
+        <tr><th><?= $escaper->escapeHtml(__('Their Link')) ?></th><td><a href="<?= $escaper->escapeUrl($admin->storefrontUrl($request)) ?>" target="_blank"><?= $escaper->escapeHtml(__('Open')) ?></a></td></tr>
+    </table>
+    <form method="post" action="<?= $escaper->escapeUrl($admin->url('zero_quote/request/save')) ?>" class="zero-quote-answer">
+        <input type="hidden" name="form_key" value="<?= $escaper->escapeHtmlAttr($block->getFormKey()) ?>">
+        <input type="hidden" name="id" value="<?= (int) $request['request_id'] ?>">
+        <table class="data-grid" style="margin-bottom: 15px;">
+            <thead>
+                <tr>
+                    <th class="data-grid-th"><?= $escaper->escapeHtml(__('Product')) ?></th>
+                    <th class="data-grid-th"><?= $escaper->escapeHtml(__('SKU')) ?></th>
+                    <th class="data-grid-th"><?= $escaper->escapeHtml(__('Qty')) ?></th>
+                    <th class="data-grid-th"><?= $escaper->escapeHtml(__('Price When Asked')) ?></th>
+                    <th class="data-grid-th"><?= $escaper->escapeHtml(__('Your Price Each (%1)', $request['currency'])) ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($items as $item): ?>
+                    <tr>
+                        <td><?= $escaper->escapeHtml($item['name']) ?><?php foreach ($item['options'] as $option): ?><br><small><?= $escaper->escapeHtml($option['label'] . ': ' . $option['value']) ?></small><?php endforeach; ?></td>
+                        <td><?= $escaper->escapeHtml($item['sku']) ?></td>
+                        <td><?= (float) $item['qty'] ?></td>
+                        <td><?= $escaper->escapeHtml($admin->money($item['price'] !== null ? (float) $item['price'] : null, $request)) ?: '—' ?></td>
+                        <td><input class="admin__control-text" type="number" step="0.01" min="0" style="width: 120px;"
+                                   name="price[<?= (int) $item['item_id'] ?>]" aria-label="<?= $escaper->escapeHtmlAttr(__('Price each for %1', $item['name'])) ?>"
+                                   value="<?= $escaper->escapeHtmlAttr($item['quoted_price'] !== null ? (string) (float) $item['quoted_price'] : '') ?>"<?= $open ? '' : ' disabled' ?>></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <?php if ($open): ?>
+            <p><label><?= $escaper->escapeHtml(__('Note to them')) ?><br>
+                <textarea class="admin__control-textarea" name="answer" rows="3" style="width: 520px;"><?= $escaper->escapeHtml((string) $request['answer']) ?></textarea></label></p>
+            <p><label><?= $escaper->escapeHtml(__('Valid for, days')) ?>
+                <input class="admin__control-text" type="number" name="days" min="1" step="1" style="width: 80px;" value="<?= (int) $admin->validDays($request) ?>"></label></p>
+            <p style="display: flex; gap: 10px;">
+                <button type="submit" name="do" value="quote" class="action-primary"><?= $escaper->escapeHtml(__('Send Quote')) ?></button>
+                <button type="submit" name="do" value="decline" class="action-secondary"><?= $escaper->escapeHtml(__('Decline')) ?></button>
+            </p>
+        <?php endif; ?>
+    </form>
+<?php else: ?>
+    <form method="get" action="<?= $escaper->escapeUrl($admin->url('zero_quote/request/index')) ?>" style="margin-bottom: 15px; display: flex; gap: 8px;">
+        <select class="admin__control-select" name="status" aria-label="<?= $escaper->escapeHtmlAttr(__('Status')) ?>">
+            <?php foreach ($statuses as $value => $label): ?>
+                <option value="<?= $escaper->escapeHtmlAttr($value) ?>"<?= $admin->status() === $value ? ' selected' : '' ?>><?= $escaper->escapeHtml($label) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <input class="admin__control-text" type="search" name="q" value="<?= $escaper->escapeHtmlAttr($admin->search()) ?>"
+               placeholder="<?= $escaper->escapeHtmlAttr(__('Name, email or company')) ?>" aria-label="<?= $escaper->escapeHtmlAttr(__('Search quote requests')) ?>" style="width: 280px;">
+        <button type="submit" class="action-secondary"><?= $escaper->escapeHtml(__('Search')) ?></button>
+    </form>
+    <table class="data-grid zero-quote-list">
+        <thead>
+            <tr>
+                <th class="data-grid-th"><?= $escaper->escapeHtml(__('Quote')) ?></th>
+                <th class="data-grid-th"><?= $escaper->escapeHtml(__('From')) ?></th>
+                <th class="data-grid-th"><?= $escaper->escapeHtml(__('Lines')) ?></th>
+                <th class="data-grid-th"><?= $escaper->escapeHtml(__('Status')) ?></th>
+                <th class="data-grid-th"><?= $escaper->escapeHtml(__('Quoted Total')) ?></th>
+                <th class="data-grid-th"><?= $escaper->escapeHtml(__('Asked (UTC)')) ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($admin->all() as $row): ?>
+                <tr>
+                    <td><a href="<?= $escaper->escapeUrl($admin->url('zero_quote/request/index', ['id' => $row['request_id']])) ?>"><?= $escaper->escapeHtml($admin->number($row)) ?></a></td>
+                    <td><?= $escaper->escapeHtml($row['name'] . ' (' . $row['email'] . ')' . ($row['company'] ? ', ' . $row['company'] : '')) ?></td>
+                    <td><?= (int) $row['lines'] ?></td>
+                    <td><?= $escaper->escapeHtml(ucfirst($row['status'])) ?></td>
+                    <td><?= $escaper->escapeHtml($admin->money($row['quoted_total'] !== null ? (float) $row['quoted_total'] : null, $row)) ?></td>
+                    <td><?= $escaper->escapeHtml($row['created_at']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (!$admin->all()): ?>
+                <tr><td colspan="6"><?= $escaper->escapeHtml(__('No quote requests.')) ?></td></tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+<?php endif; ?>

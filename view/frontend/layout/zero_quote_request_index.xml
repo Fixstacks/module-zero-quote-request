@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+
+    /quotes/request: a quote for the cart.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="Magento\Framework\View\Element\Template" name="zero.quote.request" cacheable="false" template="Zero_QuoteRequest::request.phtml">
+                <block class="Zero\Core\Block\Captcha\Field" name="zero.quote.request.captcha" as="captcha">
+                    <arguments>
+                        <argument name="form_id" xsi:type="string">zero_quote_request</argument>
+                    </arguments>
+                </block>
+                <arguments>
+                    <argument name="viewModel" xsi:type="object">Zero\QuoteRequest\ViewModel\Storefront</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

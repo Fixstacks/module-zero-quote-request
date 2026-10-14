@@ -1,0 +1,20 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * The answer to a product page's price request.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$sent = $block->getData('sent');
+$error = $block->getData('error');
+?>
+<?php if ($sent): ?>
+    <p class="alert alert-success alert-soft text-sm" role="status" data-quote-sent>
+        <?= $escaper->escapeHtml(__('Thanks! Request %1 is sent: we will email the price to %2.', sprintf('Q%06d', (int) $sent['request_id']), $sent['email'])) ?>
+    </p>
+<?php else: ?>
+    <p class="alert alert-error alert-soft text-sm" role="alert"><?= $escaper->escapeHtml((string) $error) ?></p>
+<?php endif; ?>

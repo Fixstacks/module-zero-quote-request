@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="zero_quote_request_general_template_new" label="Quote Request: New (to the Store)" file="new.html" type="html" module="Zero_QuoteRequest" area="frontend"/>
+    <template id="zero_quote_request_general_template_received" label="Quote Request: Received (to the Customer)" file="received.html" type="html" module="Zero_QuoteRequest" area="frontend"/>
+    <template id="zero_quote_request_general_template_quoted" label="Quote Request: Your Quote (to the Customer)" file="quoted.html" type="html" module="Zero_QuoteRequest" area="frontend"/>
+</config>

@@ -1,0 +1,39 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * A Price on Request product: instead of Add to Cart, ask for its price.
+ * Inside the product's add-to-cart form (so no form of its own): the button
+ * hx-posts the whole form (product, qty, options) with these fields to
+ * quotes/request/save, and the answer takes this block's place.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$product = $block->getData('product');
+?>
+<div id="zero-quote-product" class="zero-quote-product flex flex-col gap-3 rounded-box border border-base-300 p-4 my-4" data-quote-product>
+    <p class="font-medium"><?= $escaper->escapeHtml(__('Ask us for a price')) ?></p>
+    <div class="grid gap-3 sm:grid-cols-[6rem_1fr]">
+        <label class="flex flex-col gap-1 text-sm"><span><?= $escaper->escapeHtml(__('Qty')) ?></span>
+            <input type="number" name="qty" id="qty" min="1" step="1" value="1" class="input input-bordered w-full">
+        </label>
+        <label class="flex flex-col gap-1 text-sm"><span><?= $escaper->escapeHtml(__('Name')) ?></span>
+            <input type="text" name="name" maxlength="255" autocomplete="name" class="input input-bordered w-full">
+        </label>
+    </div>
+    <label class="flex flex-col gap-1 text-sm"><span><?= $escaper->escapeHtml(__('Email')) ?></span>
+        <input type="email" name="email" maxlength="255" autocomplete="email" class="input input-bordered w-full">
+    </label>
+    <label class="flex flex-col gap-1 text-sm"><span><?= $escaper->escapeHtml(__('Anything we should know')) ?></span>
+        <textarea name="comment" rows="2" maxlength="4000" class="textarea textarea-bordered w-full"></textarea>
+    </label>
+    <input type="hidden" name="source" value="product">
+    <button type="button" class="btn btn-neutral"
+            hx-post="<?= $escaper->escapeUrl($block->getUrl('quotes/request/save')) ?>"
+            hx-include="closest form" hx-target="#zero-quote-product-answer" hx-swap="innerHTML">
+        <?= $escaper->escapeHtml(__('Request a Price')) ?>
+    </button>
+    <div id="zero-quote-product-answer" aria-live="polite"></div>
+</div>

@@ -1,0 +1,21 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Under the cart's checkout button: ask for a quote for the cart instead.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Zero\QuoteRequest\ViewModel\Storefront $viewModel
+ */
+$viewModel = $block->getData('viewModel');
+if (!$viewModel->cartButton()) {
+    return;
+}
+?>
+<p class="zero-quote-cart text-sm text-center mt-3">
+    <a href="<?= $escaper->escapeUrl($block->getUrl('quotes/request')) ?>" class="link" data-quote-request-link>
+        <?= $escaper->escapeHtml(__('Buying in bulk? Request a quote')) ?>
+    </a>
+</p>

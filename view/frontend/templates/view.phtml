@@ -1,0 +1,85 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * A request by its link: status, lines (with quoted prices once answered),
+ * the store's note, and Accept while the quote is valid.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Zero\QuoteRequest\ViewModel\Storefront $viewModel
+ */
+$viewModel = $block->getData('viewModel');
+$request = $viewModel->current();
+if (!$request) {
+    return;
+}
+$items = $viewModel->items($request);
+$quoted = in_array($request['status'], ['quoted', 'ordered'], true);
+$total = 0.0;
+?>
+<div class="zero-quote-view flex flex-col gap-6 max-w-3xl">
+    <p class="flex flex-wrap items-center gap-3">
+        <span class="badge badge-lg badge-outline" data-quote-status="<?= $escaper->escapeHtmlAttr($request['status']) ?>"><?= $escaper->escapeHtml($viewModel->status($request)) ?></span>
+        <?php if ($request['status'] === 'quoted' && $request['expires_at']): ?>
+            <span class="text-sm text-base-content/70"><?= $escaper->escapeHtml(__('Valid until %1', substr((string) $request['expires_at'], 0, 10))) ?></span>
+        <?php endif; ?>
+        <?php if ($request['order_increment_id']): ?>
+            <span class="text-sm text-base-content/70"><?= $escaper->escapeHtml(__('Order #%1', $request['order_increment_id'])) ?></span>
+        <?php endif; ?>
+    </p>
+    <?php if ($request['answer']): ?>
+        <blockquote class="border-s-4 border-base-300 ps-4 whitespace-pre-line"><?= $escaper->escapeHtml($request['answer']) ?></blockquote>
+    <?php endif; ?>
+    <div class="overflow-x-auto">
+        <table class="table" data-quote-lines>
+            <thead>
+                <tr>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Product')) ?></th>
+                    <th scope="col" class="text-end"><?= $escaper->escapeHtml(__('Qty')) ?></th>
+                    <?php if ($quoted): ?>
+                        <th scope="col" class="text-end"><?= $escaper->escapeHtml(__('Price Each')) ?></th>
+                        <th scope="col" class="text-end"><?= $escaper->escapeHtml(__('Total')) ?></th>
+                    <?php endif; ?>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($items as $item): ?>
+                    <?php $line = $item['quoted_price'] !== null ? (float) $item['quoted_price'] * (float) $item['qty'] : null; $total += (float) $line; ?>
+                    <tr>
+                        <td>
+                            <?= $escaper->escapeHtml($item['name']) ?>
+                            <?php foreach ($item['options'] as $option): ?>
+                                <span class="block text-xs text-base-content/60"><?= $escaper->escapeHtml($option['label'] . ': ' . $option['value']) ?></span>
+                            <?php endforeach; ?>
+                        </td>
+                        <td class="text-end tabular-nums"><?= (float) $item['qty'] ?></td>
+                        <?php if ($quoted): ?>
+                            <td class="text-end tabular-nums" data-quoted-price><?= $escaper->escapeHtml($item['quoted_price'] !== null ? $viewModel->money((float) $item['quoted_price'], $request) : __('Not offered')) ?></td>
+                            <td class="text-end tabular-nums"><?= $escaper->escapeHtml($viewModel->money($line, $request)) ?></td>
+                        <?php endif; ?>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+            <?php if ($quoted): ?>
+                <tfoot>
+                    <tr>
+                        <th scope="row" colspan="3" class="text-end"><?= $escaper->escapeHtml(__('Total before shipping and tax')) ?></th>
+                        <td class="text-end tabular-nums font-semibold" data-quote-total><?= $escaper->escapeHtml($viewModel->money($total, $request)) ?></td>
+                    </tr>
+                </tfoot>
+            <?php endif; ?>
+        </table>
+    </div>
+    <?php if ($viewModel->isOpen($request)): ?>
+        <form method="post" action="<?= $escaper->escapeUrl($block->getUrl('quotes/view/accept')) ?>" class="flex flex-col gap-2 items-start">
+            <?= $block->getBlockHtml('formkey') ?>
+            <input type="hidden" name="token" value="<?= $escaper->escapeHtmlAttr($request['token']) ?>">
+            <button type="submit" class="btn btn-neutral"><?= $escaper->escapeHtml(__('Accept and Check Out')) ?></button>
+            <p class="text-xs text-base-content/60"><?= $escaper->escapeHtml(__('Your cart becomes this quote, at these prices and quantities.')) ?></p>
+        </form>
+    <?php elseif ($request['status'] === 'new'): ?>
+        <p class="text-base-content/70"><?= $escaper->escapeHtml(__('We are preparing your quote and will email %1 when it is ready.', $request['email'])) ?></p>
+    <?php endif; ?>
+</div>

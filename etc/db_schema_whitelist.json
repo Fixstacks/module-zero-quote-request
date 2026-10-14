@@ -1,0 +1,53 @@
+{
+    "zero_quote_request": {
+        "column": {
+            "request_id": true,
+            "status": true,
+            "token": true,
+            "store_id": true,
+            "customer_id": true,
+            "name": true,
+            "email": true,
+            "phone": true,
+            "company": true,
+            "comment": true,
+            "answer": true,
+            "currency": true,
+            "expires_at": true,
+            "order_increment_id": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "ZERO_QUOTE_REQUEST_CUSTOMER_ID": true,
+            "ZERO_QUOTE_REQUEST_STATUS": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "ZERO_QUOTE_REQUEST_TOKEN": true
+        }
+    },
+    "zero_quote_request_item": {
+        "column": {
+            "item_id": true,
+            "request_id": true,
+            "product_id": true,
+            "sku": true,
+            "name": true,
+            "options": true,
+            "buy_request": true,
+            "qty": true,
+            "price": true,
+            "quoted_price": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "ZERO_QUOTE_REQUEST_ITEM_REQUEST_ID_ZERO_QUOTE_REQUEST_REQUEST_ID": true
+        }
+    },
+    "quote": {
+        "column": {
+            "zero_quote_request_id": true
+        }
+    }
+}

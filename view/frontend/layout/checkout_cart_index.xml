@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+
+    "Request a quote instead" under the checkout button.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="checkout.cart.methods">
+            <block class="Magento\Framework\View\Element\Template" name="zero.quote.cart" after="-" template="Zero_QuoteRequest::cart-link.phtml">
+                <arguments>
+                    <argument name="viewModel" xsi:type="object">Zero\QuoteRequest\ViewModel\Storefront</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

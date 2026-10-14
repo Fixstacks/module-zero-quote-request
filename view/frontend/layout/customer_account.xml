@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+
+    "My Quotes" in the account menu.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="customer_account_navigation">
+            <block class="Magento\Customer\Block\Account\SortLinkInterface" name="zero-quote-navigation-link"
+                   ifconfig="zero_quote_request/general/enabled">
+                <arguments>
+                    <argument name="label" xsi:type="string" translate="true">My Quotes</argument>
+                    <argument name="path" xsi:type="string">quotes/account</argument>
+                    <argument name="sortOrder" xsi:type="number">225</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

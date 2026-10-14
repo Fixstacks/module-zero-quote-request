@@ -1,0 +1,40 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * My Account > My Quotes.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Zero\QuoteRequest\ViewModel\Storefront $viewModel
+ */
+$viewModel = $block->getData('viewModel');
+$requests = $viewModel->mine();
+?>
+<?php if (!$requests): ?>
+    <p class="text-base-content/70"><?= $escaper->escapeHtml(__('No quote requests yet. Ask for one from your cart, or on a product with its price on request.')) ?></p>
+<?php else: ?>
+    <div class="overflow-x-auto">
+        <table class="table" data-quote-requests>
+            <thead>
+                <tr>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Quote')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Asked')) ?></th>
+                    <th scope="col"><?= $escaper->escapeHtml(__('Status')) ?></th>
+                    <th scope="col" class="text-end"><?= $escaper->escapeHtml(__('Total')) ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($requests as $request): ?>
+                    <tr>
+                        <td><a class="link" href="<?= $escaper->escapeUrl($block->getUrl('quotes/view', ['_query' => ['token' => $request['token']]])) ?>"><?= $escaper->escapeHtml($viewModel->number($request)) ?></a></td>
+                        <td class="whitespace-nowrap"><?= $escaper->escapeHtml(substr((string) $request['created_at'], 0, 10)) ?></td>
+                        <td><?= $escaper->escapeHtml($viewModel->status($request)) ?></td>
+                        <td class="text-end tabular-nums"><?= $escaper->escapeHtml($request['quoted_total'] !== null ? $viewModel->money((float) $request['quoted_total'], $request) : '') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>

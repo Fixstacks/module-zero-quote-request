@@ -1,0 +1,17 @@
+<!--@subject {{trans "Your quote %number from %store_name" number=$number store_name=$store_name}} @-->
+<!--@vars {
+"var number":"Request Number",
+"var name":"Name",
+"var answer":"Our Note",
+"var valid_until":"Valid Until",
+"var items_html|raw":"Lines With Prices",
+"var url":"Quote Link",
+"var store_name":"Store Name"
+} @-->
+{{template config_path="design/email/header_template"}}
+<p class="greeting">{{trans "Hi %name," name=$name}}</p>
+<p>{{trans "Here is your quote."}}{{if valid_until}} {{trans "It is valid until %date." date=$valid_until}}{{/if}}</p>
+{{if answer}}<p style="white-space: pre-line;">{{var answer}}</p>{{/if}}
+{{var items_html|raw}}
+<p><a href="{{var url}}">{{trans "Accept and check out"}}</a></p>
+{{template config_path="design/email/footer_template"}}

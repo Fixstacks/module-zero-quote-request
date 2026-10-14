@@ -1,0 +1,18 @@
+<!--@subject {{trans "New quote request %number from %name" number=$number name=$name}} @-->
+<!--@vars {
+"var number":"Request Number",
+"var name":"Name",
+"var email":"Email",
+"var phone":"Phone",
+"var company":"Company",
+"var comment":"Comment",
+"var items_html|raw":"Lines",
+"var url":"Request Link"
+} @-->
+{{template config_path="design/email/header_template"}}
+<p>{{trans "%name asks for a quote (%number)." name=$name number=$number}}</p>
+<p>{{var email}}{{if phone}} · {{var phone}}{{/if}}{{if company}} · {{var company}}{{/if}}</p>
+{{if comment}}<p style="white-space: pre-line;">{{var comment}}</p>{{/if}}
+{{var items_html|raw}}
+<p>{{trans "Answer it in the admin: Sales > Quote Requests."}}</p>
+{{template config_path="design/email/footer_template"}}

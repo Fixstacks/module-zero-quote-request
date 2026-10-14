@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <!-- A request for a quote: who asks, for what; the store's answer (prices per line, until when). -->
+    <table name="zero_quote_request" resource="default" engine="innodb" comment="Zero Quote Requests">
+        <column xsi:type="int" name="request_id" unsigned="true" nullable="false" identity="true" comment="Request ID"/>
+        <column xsi:type="varchar" name="status" length="16" nullable="false" default="new" comment="new, quoted, ordered, declined"/>
+        <column xsi:type="varchar" name="token" length="64" nullable="false" comment="Link Token"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" comment="Store View"/>
+        <column xsi:type="int" name="customer_id" unsigned="true" nullable="true" comment="Customer"/>
+        <column xsi:type="varchar" name="name" length="255" nullable="false" comment="Name"/>
+        <column xsi:type="varchar" name="email" length="255" nullable="false" comment="Email"/>
+        <column xsi:type="varchar" name="phone" length="64" nullable="true" comment="Phone"/>
+        <column xsi:type="varchar" name="company" length="255" nullable="true" comment="Company"/>
+        <column xsi:type="text" name="comment" nullable="true" comment="Customer's Comment"/>
+        <column xsi:type="text" name="answer" nullable="true" comment="Store's Answer"/>
+        <column xsi:type="varchar" name="currency" length="3" nullable="true" comment="Currency (quoted prices)"/>
+        <column xsi:type="datetime" name="expires_at" nullable="true" comment="Quote Valid Until (UTC)"/>
+        <column xsi:type="varchar" name="order_increment_id" length="50" nullable="true" comment="Order"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="request_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="ZERO_QUOTE_REQUEST_TOKEN">
+            <column name="token"/>
+        </constraint>
+        <index referenceId="ZERO_QUOTE_REQUEST_CUSTOMER_ID" indexType="btree">
+            <column name="customer_id"/>
+        </index>
+        <index referenceId="ZERO_QUOTE_REQUEST_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+    </table>
+    <table name="zero_quote_request_item" resource="default" engine="innodb" comment="Zero Quote Request Items">
+        <column xsi:type="int" name="item_id" unsigned="true" nullable="false" identity="true" comment="Item ID"/>
+        <column xsi:type="int" name="request_id" unsigned="true" nullable="false" comment="Request ID"/>
+        <column xsi:type="int" name="product_id" unsigned="true" nullable="false" comment="Product ID"/>
+        <column xsi:type="varchar" name="sku" length="64" nullable="false" comment="SKU"/>
+        <column xsi:type="varchar" name="name" length="255" nullable="false" comment="Name"/>
+        <column xsi:type="text" name="options" nullable="true" comment="Options Shown (JSON)"/>
+        <column xsi:type="text" name="buy_request" nullable="true" comment="Buy Request (JSON)"/>
+        <column xsi:type="decimal" name="qty" scale="4" precision="12" nullable="false" default="1" comment="Qty"/>
+        <column xsi:type="decimal" name="price" scale="4" precision="20" nullable="true" comment="Price When Asked (display currency)"/>
+        <column xsi:type="decimal" name="quoted_price" scale="4" precision="20" nullable="true" comment="Quoted Unit Price"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="item_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ZERO_QUOTE_REQUEST_ITEM_REQUEST_ID_ZERO_QUOTE_REQUEST_REQUEST_ID"
+                    table="zero_quote_request_item" column="request_id" referenceTable="zero_quote_request"
+                    referenceColumn="request_id" onDelete="CASCADE"/>
+    </table>
+    <table name="quote" resource="checkout">
+        <column xsi:type="int" name="zero_quote_request_id" unsigned="true" nullable="true" comment="Accepted Quote Request"/>
+    </table>
+</schema>
