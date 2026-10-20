@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Zero\QuoteRequest\Model;
 
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Event\ManagerInterface as EventManager;
 
 /**
  * Quote requests and their lines. Statuses: new (asked), quoted (answered
@@ -24,8 +25,10 @@ class Requests
     private const TABLE = 'zero_quote_request';
     private const ITEMS = 'zero_quote_request_item';
 
-    public function __construct(private readonly ResourceConnection $resource)
-    {
+    public function __construct(
+        private readonly ResourceConnection $resource,
+        private readonly ?EventManager $eventManager = null
+    ) {
     }
 
     /**
@@ -59,8 +62,10 @@ class Requests
             $connection->rollBack();
             throw $e;
         }
-
-        return $this->get($id);
+        $row = $this->get($id);
+        // Zero_Webhooks listens (quote_request.created).
+        $this->eventManager?->dispatch('zero_quote_request_created', ['request' => $row, 'items' => $this->items($id), 'store_id' => (int) $row['store_id']]);
+        return $row;
     }
 
     public function get(int $id): ?array
