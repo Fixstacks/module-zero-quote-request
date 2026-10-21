@@ -1,4 +1,4 @@
-# fixstacks/module-zero-quote-request — licensing
+# zerofront/module-zero-quote-request — licensing
 
 Copyright © 2026 Roman Pasichnyk.
 
